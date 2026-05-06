@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  nameAr      String
+  nameEn      String
+  slug        String   @unique
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  stores      Store[]
+}
+
+model Store {
+  id            Int      @id @default(autoincrement())
+  nameAr        String
+  nameEn        String
+  slug          String   @unique
+  descriptionAr String?  @db.Text
+  descriptionEn String?  @db.Text
+  logoUrl       String?
+  websiteUrl    String?
+  categoryId    Int?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  totalClicks   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  coupons       Coupon[]
+}
+
+enum DiscountType {
+  percentage
+  fixed
+  free_shipping
+}
+
+model Coupon {
+  id              Int          @id @default(autoincrement())
+  titleAr         String
+  titleEn         String
+  code            String
+  discountType    DiscountType
+  discountValue   Float?
+  storeId         Int
+  store           Store        @relation(fields: [storeId], references: [id])
+  affiliateUrl    String?
+  commissionValue Float?
+  expiresAt       DateTime?
+  isActive        Boolean      @default(true)
+  totalClicks     Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  lastLogin DateTime?
+}
